@@ -8,6 +8,28 @@ Valheim decides which biome sectors get an Alternative Biome purely at runtime, 
 
 No ZDOs, chunks, or player objects are ever touched. This only affects the in-memory biome calculation, so it's completely safe for anything you've built.
 
+## What is a "zone"?
+
+Valheim splits the whole map into a grid of 64m x 64m tiles internally called **zones** (see [valheim.wiki/Zones](https://valheim.wiki/Zones)). Every world position belongs to exactly one zone, addressed by an integer `(x, z)` pair (e.g. `63,-38`). Zones are the same grid the game uses to decide what's loaded/generated around you, and they're the coordinate system this plugin's `ProtectedZones` config uses - you give it the zone your base sits in, and the plugin figures out which biome sector that zone belongs to (see [Configuration](#configuration) below for how to read your current zone).
+
+## Use cases
+
+The main scenario this plugin solves:
+
+> **You built your base in an area that was normal when you first settled, but has since become (or turned out to be) an Alternative Biome** - e.g. your Meadows base now has permanent storms, or your build site got tagged with some other forced-weather/forced-effect variant you don't want. You want the *terrain and biome back to normal*, but you don't want to lose the base, and you don't want to touch anything you or your friends have built.
+
+Other situations where this is useful:
+
+- **You want to explore/keep an Alternative Biome's rewards (unique locations, loot, resources) elsewhere on the map, but don't want to live with its side effects at your main base.** Protect just your base's sector; every other Alternative Biome sector on the map is untouched and still spawns normally.
+- **You're setting up a dedicated server** and want to guarantee specific "safe" build zones (e.g. spawn area, a designated build zone) never roll an Alternative Biome for new players, without disabling the feature world-wide.
+- **An Alternative Biome's forced weather is making a build site unplayable** (e.g. constant lightning/fog interfering with building, visibility, or performance) and you'd rather keep your progress than regenerate/relocate.
+
+### What this plugin does *not* do
+
+- It won't remove an Alternative Biome's effect from a zone *other* than the ones you list - it's opt-in per protected sector, not a global toggle.
+- It can't shrink the protection down to just your building plot if your base sits inside a very large connected landmass - see [Important: protection scope](#important-protection-scope) below.
+- It doesn't grant you the Alternative Biome's unique rewards/locations either - once protected, that sector behaves like an ordinary sector of its base biome type in every respect.
+
 ### Important: protection scope
 
 An Alternative Biome is assigned to an entire **biome sector** - a whole contiguous landmass of the same base biome type (e.g. one connected stretch of Meadows), not a single 64m zone. The zone coordinate you configure is only used to *locate* which sector to protect; the whole connected sector containing that zone is what actually gets protected. If that landmass is large, the effect applies to all of it, not just the area around your build.
