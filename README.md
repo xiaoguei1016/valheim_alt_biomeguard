@@ -98,6 +98,16 @@ the world's biome data hasn't been generated yet when the check ran - this is no
 
 Then in-game, walk to the area and confirm the permanent weather effect is gone and the region's name on the map has reverted to its normal biome name.
 
+## Multiplayer
+
+**Every player needs this plugin installed, not just the dedicated server.** The world seed is the only thing sent over the network - each client (including the host, if you're using host+play) independently reconstructs `WorldGenerator`/`AltBiomeWorldData` from that seed locally (see `ZNet`'s client handshake, which calls `AltBiomeWorldData.VerifyBiomeData(m_world)` right after receiving the seed from the server). Weather (`EnvMan`) is then read from each client's own local computation.
+
+Practical implications:
+
+- If only the server has AltBiomeGuard, players without it will still see/experience the Alternative Biome's effects (e.g. the storm) on their own screen - the server being "fixed" doesn't change what an unpatched client computes locally.
+- Everyone's `ProtectedZones` config should list the **same zone coordinates**, or different players will disagree about which areas are "cured".
+- The server copy still matters for anything it's authoritative over - e.g. location/vegetation placement in *newly explored* zones (`ZoneSystem` genloc runs server-side) - but for weather in an already-explored area, the client-side copy is what actually matters.
+
 ## Notes / Caveats
 
 - This is an unofficial plugin built by decompiling the game's own code. If a future Valheim update changes `BiomeSector`, `AltBiomeWorldData`, or their method signatures, this plugin will need to be recompiled against the new game assembly.
